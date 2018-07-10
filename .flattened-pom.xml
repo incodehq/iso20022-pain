@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.incode.ecp.iso20022</groupId>
+  <artifactId>incode-ecp-iso20022-pain</artifactId>
+  <version>001.001.003</version>
+  <dependencies>
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <version>2.9.4</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+  <profiles>
+    <profile>
+      <id>incode-cloud-maven</id>
+      <activation>
+        <property>
+          <name>!skip.incode-cloud-maven</name>
+        </property>
+      </activation>
+      <repositories>
+        <repository>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+          </snapshots>
+          <id>incode-cloud-maven</id>
+          <name>Incode Cloud (maven)</name>
+          <url>https://repo.incode.cloud/repository/maven/</url>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+</project>

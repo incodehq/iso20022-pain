@@ -1,0 +1,254 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.incode.ecp.iso20022</groupId>
+    <artifactId>incode-ecp-iso20022-pain</artifactId>
+    <version>${revision}</version>
+    <packaging>jar</packaging>
+
+    <name>ISO 2002 Payments Initiation</name>
+    <description>
+	https://www.iso20022.org/message_archive.page
+    </description>
+
+    <url>https://gitlab.com/incodehq-public/iso20022-pain</url>
+
+    <properties>
+
+        <revision>001.001.003</revision>
+    </properties>
+
+    
+    <dependencies>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+	    <version>2.9.4</version>
+        </dependency>
+    </dependencies>
+    
+    <build>
+    	<plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <pomElements>
+                        <dependencyManagement>resolve</dependencyManagement>
+                        <dependencies>resolve</dependencies>
+                    </pomElements>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <profiles>
+        <!--
+        The 'maven' repository is a group which includes 'maven-dev', 'maven-test' and 'maven-prod'
+        If necessary, it can (using properties) be excluded and the individual repositories included instead
+        -->
+        <profile>
+            <id>incode-cloud-maven</id>
+            <activation>
+                <property>
+                    <name>!skip.incode-cloud-maven</name>
+                </property>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>incode-cloud-maven</id>
+                    <url>https://repo.incode.cloud/repository/maven/</url>
+                    <name>Incode Cloud (maven)</name>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                        <checksumPolicy>fail</checksumPolicy>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                        <updatePolicy>always</updatePolicy>
+                        <checksumPolicy>fail</checksumPolicy>
+                    </snapshots>
+                    <layout>default</layout>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>incode-cloud-maven</id>
+                    <name>Incode Cloud (maven)</name>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>never</updatePolicy>
+                        <checksumPolicy>fail</checksumPolicy>
+                    </releases>
+                    <url>https://repo.incode.cloud/repository/maven/</url>
+                    <layout>default</layout>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+
+        <profile>
+            <!--
+            this profile allows builds to be deployed to an inhouse nexus repo.
+
+            export NEXUS_USERNAME=...
+            export NEXUS_PASSWORD=...
+            export NEXUS_REPO_URL=...
+
+            export REVISION=...
+
+            mvn clean deploy \
+                 -Drevision=$REVISION \
+                 -Dnexus-deploy \
+                 -s .m2/settings.xml \
+                 -Dnexus-deploy.repositoryUrl=$NEXUS_REPO_URL
+
+            with .m2/settings.xml as:
+
+            <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+              <servers>
+                <server>
+                  <id>nexus-deploy.serverId</id>
+                  <username>${env.NEXUS_USERNAME}</username>
+                  <password>${env.NEXUS_PASSWORD}</password>
+                </server>
+              </servers>
+            </settings>
+
+            -->
+            <id>nexus-deploy</id>
+            <activation>
+                <property>
+                    <name>nexus-deploy</name>
+                </property>
+            </activation>
+            <properties>
+                <nexus-deploy.repositoryUrl>http://localhost:8081/repository/builds</nexus-deploy.repositoryUrl>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.8</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>nexus-deploy.serverId</serverId>
+                            <skipStaging>true</skipStaging>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <distributionManagement>
+                <repository>
+                    <id>nexus-deploy.serverId</id>
+                    <url>${nexus-deploy.repositoryUrl}</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+
+        <profile>
+            <id>xsd-to-java</id>
+            <activation>
+                <property>
+                    <name>!skip.xsd-to-java</name>
+                </property>
+            </activation>
+
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.jvnet.jaxb2.maven2</groupId>
+                            <artifactId>maven-jaxb2-plugin</artifactId>
+                            <version>0.13.1</version>
+                            <configuration>
+                                <removeOldOutput>true</removeOldOutput>
+                                <episode>true</episode>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jvnet.jaxb2.maven2</groupId>
+                        <artifactId>maven-jaxb2-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>generate-chg-xsd</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                                <configuration>
+                                    <verbose>true</verbose>
+                                    <schemaDirectory>src/main/resources/iso/std/iso/_20022/tech/xsd</schemaDirectory>
+                                    <schemaIncludes>
+                                        <schemaInclude>pain_001_001/pain.001.001.03.xsd</schemaInclude>
+                                    </schemaIncludes>
+                                    <bindingDirectory>src/main/resources/iso/std/iso/_20022/tech/xsd</bindingDirectory>
+                                    <bindingIncludes>
+                                        <bindingInclude>bindings.xml</bindingInclude>
+                                    </bindingIncludes>
+                                    <args>
+                                        <arg>-extension</arg>
+                                        <arg>-Xnamespace-prefix</arg>
+                                    </args>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.jvnet.jaxb2_commons</groupId>
+                                <artifactId>jaxb2-namespace-prefix</artifactId>
+                                <version>1.1</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.9.1</version>
+                        <executions>
+                            <execution>
+                                <id>add-source</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>target/generated-sources/xjc</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                 </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
