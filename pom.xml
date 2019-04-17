@@ -63,22 +63,18 @@
     </build>
 
     <profiles>
-        <!--
-        The 'maven' repository is a group which includes 'maven-dev', 'maven-test' and 'maven-prod'
-        If necessary, it can (using properties) be excluded and the individual repositories included instead
-        -->
         <profile>
-            <id>incode-cloud-maven</id>
+            <id>incode-work-maven</id>
             <activation>
                 <property>
-                    <name>!skip.incode-cloud-maven</name>
+                    <name>!skip.incode-work-maven</name>
                 </property>
             </activation>
             <repositories>
                 <repository>
-                    <id>incode-cloud-maven</id>
-                    <url>https://repo.incode.cloud/repository/maven/</url>
-                    <name>Incode Cloud (maven)</name>
+                    <id>incode-work-maven</id>
+                    <url>https://repo.incode.work</url>
+                    <name>Incode Work (maven)</name>
                     <releases>
                         <enabled>true</enabled>
                         <updatePolicy>always</updatePolicy>
@@ -94,14 +90,14 @@
             </repositories>
             <pluginRepositories>
                 <pluginRepository>
-                    <id>incode-cloud-maven</id>
-                    <name>Incode Cloud (maven)</name>
+                    <id>incode-work-maven</id>
+                    <url>https://repo.incode.work</url>
+                    <name>Incode Work (maven)</name>
                     <releases>
                         <enabled>true</enabled>
                         <updatePolicy>never</updatePolicy>
                         <checksumPolicy>fail</checksumPolicy>
                     </releases>
-                    <url>https://repo.incode.cloud/repository/maven/</url>
                     <layout>default</layout>
                 </pluginRepository>
             </pluginRepositories>
