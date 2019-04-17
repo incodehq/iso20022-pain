@@ -8,3 +8,5 @@
 .settings/
 .project
 *.iml
+.idea/
+.flattened-pom.xml
